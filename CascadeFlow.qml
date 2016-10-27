@@ -21,7 +21,7 @@ Item {
 
 			property int spacing: 8
 			property int cardWidth: 160
-			property int animeDuration: 300
+			property int animeDuration: 400
 			property int columns: (parent.width+spacing)/(cardWidth+spacing)
 			property int length
 			property var cards: []
@@ -40,7 +40,7 @@ Item {
 						maxBY = bottoms[i].bottomY
 				}
 
-				flow.height = maxBY
+				flow.height = maxBY + anchors.margins
 				item.upCard = upCard
 				item.downCard = dummy
 				upCard.downCard = item
@@ -127,14 +127,15 @@ Item {
 							destroy()
 					}
 
-					Component.onCompleted:
+					Component.onCompleted: {
 						opacity = 1
+					}
 
 					layer.enabled: true
 					layer.effect: Glow {
-						color: Qt.rgba(0,0,0,.4*parent.opacity)
-						radius: 4
-						spread: 0.4
+						color: Qt.rgba(0,0,0,.3*parent.opacity)
+						radius: 3
+						spread: 0.3
 					}
 				}
 			}
@@ -147,6 +148,12 @@ Item {
 				for (i=0;i<cards.length;i++)
 					update(cards[i])
 			}
+            
+            Behavior on height {
+				NumberAnimation {
+					duration: flow.animeDuration
+				}
+			}
 		}
 	}
 
@@ -158,8 +165,12 @@ Item {
 
 		onTriggered: {
 			var r = Math.random()
-			if (r>flow.length/(flow.columns*20/*flow.height/flow.cardWidth*/)) {
+			if (r>flow.length/(flow.columns*10)) {
+				info.text = "Append to flow at %1".arg(flow.length)
+				var ci = card.createObject(flow)
 				var pi = post.createObject(flow)
+				pi.parent = ci
+				flow.push(ci)
 			}
 			else {
 				r = Math.random()
@@ -175,12 +186,11 @@ Item {
 
 		Post {
 			width: flow.cardWidth
-			onImplicitHeightChanged: {
-				info.text = "Append to flow at %1".arg(flow.length)
-				var ci = card.createObject(flow)
-				ci.height = implicitHeight + 2
-				parent = ci
-				flow.push(ci)
+			onHeightChanged: {
+				if (parent)
+					parent.height = height + 2
+				else
+					destroy()
 			}
 		}
 	}
