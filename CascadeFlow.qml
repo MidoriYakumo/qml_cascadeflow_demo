@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtGraphicalEffects 1.0
 
 Item {
 	width: 800
@@ -14,7 +15,7 @@ Item {
 
 
 		property int spacing: 8
-		property int cardWidth: 400
+		property int cardWidth: 160
 		property int animeDuration: 120
 		property int columns: (parent.width+spacing)/(cardWidth+spacing)
 		property int length
@@ -119,6 +120,13 @@ Item {
 
 				Component.onCompleted:
 					opacity = 1
+
+				layer.enabled: true
+				layer.effect: Glow {
+					color: Qt.rgba(0,0,0,.4)
+					radius: 4
+					spread: 0.4
+				}
 			}
 		}
 
@@ -140,8 +148,7 @@ Item {
 
 		onTriggered: {
 			var r = Math.random()
-			if (r>flow.length/(flow.columns*flow.height/80)) {
-				info.text = "Append to flow at %1".arg(flow.length)
+			if (r>flow.length/(flow.columns*flow.height/flow.cardWidth)) {
 				var pi = post.createObject(flow)
 			}
 			else {
@@ -159,6 +166,7 @@ Item {
 		Post {
 			width: flow.cardWidth
 			onImplicitHeightChanged: {
+				info.text = "Append to flow at %1".arg(flow.length)
 				var ci = card.createObject(flow)
 				ci.height = implicitHeight + 2
 				parent = ci
